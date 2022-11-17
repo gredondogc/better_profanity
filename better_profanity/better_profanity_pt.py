@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import itertools
+
 from collections.abc import Iterable
 import math
 
@@ -16,7 +16,7 @@ from .sliced_word_set import SlicedWordSet
 MAX_SLICE_VARIANTS = 1_000_000
 
 
-class Profanity:
+class ProfanityPt:
     def __init__(self, words=None):
         """
         Args:
@@ -32,12 +32,20 @@ class Profanity:
         self.CENSOR_WORDSET = []
         self.CHARS_MAPPING = {
             "a": ("a", "@", "*", "4", "#"),
+            "ã": ("ã", "a", "@", "*", "4", "#"),
+            "á": ("á", "a", "@", "*", "4", "#"),
+            "à": ("à", "a", "@", "*", "4", "#"),
             "i": ("i", "*", "l", "1"),
             "o": ("o", "*", "0", "@"),
+            "ô": ("ô", "o", "*", "0", "@"),
+            "õ": ("õ", "o", "*", "0", "@"),
             "u": ("u", "*", "v"),
+            "ú": ("ú", "u", "*", "v"),
             "v": ("v", "*", "u"),
             "l": ("l", "1"),
             "e": ("e", "*", "3"),
+            "é": ("é", "e", "*", "3"),
+            "ê": ("ê", "e", "*", "3"),
             "s": ("s", "$", "5"),
             "t": ("t", "7"),
         }
@@ -47,7 +55,7 @@ class Profanity:
         max_char_variants = max([len(chars) for chars in self.CHARS_MAPPING.values()])
         self._max_slice_len = int(math.log(MAX_SLICE_VARIANTS, max_char_variants))
         self._default_wordlist_filename = get_complete_path_of_file(
-            "profanity_wordlist.txt"
+            "pt_profanity_wordlist.txt"
         )
         if isinstance(words, str):
             self.load_censor_words_from_file(words)
@@ -102,29 +110,6 @@ class Profanity:
         if not self.CENSOR_WORDSET:
             self.load_censor_words()
         return self._get_swear_words(text)
-
-    def get_contained_swear_words(self, text, min_length=3, max_length=10):
-        """Returns a set of profane words found inside partial words """
-
-        if not isinstance(text, str):
-            text = str(text)
-
-        if not self.CENSOR_WORDSET:
-            self.load_censor_words()
-
-        text = text.lower()
-        swear_words = set()
-        for i in range(0, len(text) - min_length):
-            for j in range(i - 1 + min_length, min(len(text), i + max_length)):
-                cur_word = text[i:j+1]
-                # print(cur_word)
-                if cur_word in self.CENSOR_WORDSET:
-                    swear_words.add(cur_word)
-
-        return swear_words
-
-    def remove_repeated(self, text):
-        return ''.join(c[0] for c in itertools.groupby(text))
 
 
     ## PRIVATE ##
